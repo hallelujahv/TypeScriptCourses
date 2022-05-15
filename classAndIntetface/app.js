@@ -1,29 +1,40 @@
 "use strict";
-class Person {
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+// 抽象类只能定义 不能 实例化
+var Person = /** @class */ (function () {
     // private name: string;
     // private hobbies: string[] = [];
     // readonly 表示在初始化之后就不能再修改
-    constructor(name, hobbies) {
+    function Person(name, hobbies) {
         this.name = name;
         this.hobbies = hobbies;
         // this.name = name;
     }
-    // 实际上是添加到了Person的原型对象上
-    // 这个方法中第一个参数写 this 是 ts 中独有的用法
-    // 用来确保调用这个方法的对象拥有Person的所有属性
-    describe() {
-        console.log(`${this.name} has ${this.hobbies}`);
-    }
-    studyHobby(hobby) {
+    Person.prototype.studyHobby = function (hobby) {
         this.hobbies.push(hobby);
-    }
-    showHobbies() {
+    };
+    Person.prototype.showHobbies = function () {
         return this.hobbies;
-    }
-}
-const p = new Person("V", ["code", "basketball"]);
-console.log(p);
-p.describe();
+    };
+    return Person;
+}());
+// const p = new Person("V", ["code", "basketball"]);
+// console.log(p);
+// p.describe();
 // const pCopy = {
 //   name: "zky",
 //   age: 18,
@@ -31,24 +42,49 @@ p.describe();
 // }
 // // pCopy 不是 Person 的实例对象
 // pCopy.describe(); // error
-class Student extends Person {
-    constructor(name, grade) {
+var Student = /** @class */ (function (_super) {
+    __extends(Student, _super);
+    function Student(name, grade) {
+        var _this = 
         // super 就相当于 继承对象（Person）
-        super(name, ["study"]);
-        this.grade = grade;
+        _super.call(this, name, ["study"]) || this;
+        _this.grade = grade;
+        return _this;
     }
-    describe() {
-        console.log(`My name is ${this.name}, and my grade is ${this.grade}`);
-    }
-    get myGrade() {
-        return this.grade;
-    }
-    set myGrade(val) {
-        this.grade = val;
-    }
-}
-const stu = new Student("zky", "Good");
+    Student.prototype.describe = function () {
+        console.log("My name is ".concat(this.name, ", and my grade is ").concat(this.grade));
+    };
+    Object.defineProperty(Student.prototype, "myGrade", {
+        get: function () {
+            return this.grade;
+        },
+        set: function (val) {
+            this.grade = val;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Student.age = 10;
+    return Student;
+}(Person));
+var stu = new Student("zky", "Good");
 stu.describe();
 console.log(stu.myGrade);
 stu.myGrade = "Bad";
 console.log(stu.myGrade);
+var Teacher = /** @class */ (function (_super) {
+    __extends(Teacher, _super);
+    function Teacher(name) {
+        return _super.call(this, name, ["study"]) || this;
+    }
+    Teacher.getTeacher = function () {
+        if (!this.t) {
+            this.t = new Teacher("Mrs.V");
+        }
+        return this.t;
+    };
+    Teacher.prototype.describe = function () {
+    };
+    return Teacher;
+}(Person));
+console.dir(Teacher.getTeacher());

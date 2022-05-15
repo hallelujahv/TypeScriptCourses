@@ -1,4 +1,5 @@
-class Person {
+// 抽象类只能定义 不能 实例化
+abstract class Person {
   // private name: string;
   // private hobbies: string[] = [];
 
@@ -10,9 +11,7 @@ class Person {
   // 实际上是添加到了Person的原型对象上
   // 这个方法中第一个参数写 this 是 ts 中独有的用法
   // 用来确保调用这个方法的对象拥有Person的所有属性
-  describe(this: Person) {
-    console.log(`${this.name} has ${this.hobbies}`);
-  }
+  abstract describe(this: Person): void; 
 
   studyHobby(hobby: string) {
     this.hobbies.push(hobby);
@@ -23,10 +22,10 @@ class Person {
   }
 }
 
-const p = new Person("V", ["code", "basketball"]);
-console.log(p);
+// const p = new Person("V", ["code", "basketball"]);
+// console.log(p);
 
-p.describe();
+// p.describe();
 
 // const pCopy = {
 //   name: "zky",
@@ -54,6 +53,8 @@ class Student extends Person {
   set myGrade(val: string) {
     this.grade = val;
   }
+
+  static age: number = 10;
 }
 
 const stu = new Student("zky", "Good");
@@ -61,3 +62,24 @@ stu.describe();
 console.log(stu.myGrade);
 stu.myGrade = "Bad";
 console.log(stu.myGrade);
+
+class Teacher extends Person {
+  private static t: Teacher;
+
+  // 在构造函数前 加 private，表示单例模式，即 Teacher 只能有一个实例
+  private constructor(name: string) {
+    super(name, ["study"]);
+  }
+
+  static getTeacher() {
+    if(!this.t) {
+      this.t = new Teacher("Mrs.V");
+    }
+    return this.t;
+  }
+  
+  describe(this: Person): void {
+  }
+}
+
+console.dir(Teacher.getTeacher())
