@@ -16,7 +16,7 @@ function positiveNumber(target: any, propName: string) {
   // console.log(target.constructor.name);
   registerValidators[target.constructor.name] = {
     ...registerValidators[target.constructor.name],
-    [propName]: ["required"],
+    [propName]: ["positive"],
   };
 }
 
@@ -67,7 +67,7 @@ courseForm.addEventListener("submit", (e) => {
 
   const createdCourse = new Course(title, price);
   if (!validate(createdCourse)) {
-    alert("0.0");
+    alert("Invalid input, please try again!");
     return;
   }
   console.log(createdCourse);

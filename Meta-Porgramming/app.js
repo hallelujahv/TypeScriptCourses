@@ -13,7 +13,7 @@ function required(target, propName) {
 }
 function positiveNumber(target, propName) {
     // console.log(target.constructor.name);
-    registerValidators[target.constructor.name] = Object.assign(Object.assign({}, registerValidators[target.constructor.name]), { [propName]: ["required"] });
+    registerValidators[target.constructor.name] = Object.assign(Object.assign({}, registerValidators[target.constructor.name]), { [propName]: ["positive"] });
 }
 function validate(obj) {
     // console.log(registerValidators);
@@ -59,7 +59,7 @@ courseForm.addEventListener("submit", (e) => {
     const price = +priceEl.value;
     const createdCourse = new Course(title, price);
     if (!validate(createdCourse)) {
-        alert("0.0");
+        alert("Invalid input, please try again!");
         return;
     }
     console.log(createdCourse);
