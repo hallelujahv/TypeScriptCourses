@@ -8,11 +8,21 @@ function Logger(logString: string) {
 }
 
 function withTemplate(template: string, hookId: string) {
-  return function (_: Function) {
-    const hookEl = document.getElementById(hookId);
-    if (hookEl) {
-      hookEl.innerHTML = template;
-    }
+  return function <T extends { new (...args: any[]): { name: string } }>(
+    originalConstructor: T
+  ) {
+    // 返回的新的 class 会覆盖 Person
+    return class extends originalConstructor {
+      constructor(..._: any[]) {
+        super();
+        console.log("Rendering template");
+        const hookEl = document.getElementById(hookId);
+        if (hookEl) {
+          hookEl.innerHTML = template;
+          hookEl.querySelector("h1")!.innerText = this.name;
+        }
+      }
+    };
   };
 }
 
@@ -43,7 +53,11 @@ function Log2(target: any, name: string, descriptor: PropertyDescriptor) {
   console.log(descriptor);
 }
 
-function Log3(target: any, name: string | Symbol, descriptor: PropertyDescriptor) {
+function Log3(
+  target: any,
+  name: string | Symbol,
+  descriptor: PropertyDescriptor
+) {
   console.log("Method decorator");
   console.log(target);
   console.log(name);
@@ -87,3 +101,30 @@ class Product {
     return this._price * (1 + tax);
   }
 }
+
+function AutoBind(_: any, _2: string, descriptor: PropertyDescriptor) {
+  console.log("AutoBind decorator");
+  // console.log(descriptor);
+  const originalMethod = descriptor.value;
+  const adjDescriptor: PropertyDescriptor = {
+    configurable: true,
+    enumerable: false,
+    get() {
+      return originalMethod.bind(this);
+    },
+  };
+  return adjDescriptor;
+}
+
+class Printer {
+  message = "This works";
+
+  @AutoBind
+  showMessage() {
+    console.log(this.message);
+  }
+}
+
+const p = new Printer();
+const btn = document.querySelector("button");
+btn?.addEventListener("click", p.showMessage);

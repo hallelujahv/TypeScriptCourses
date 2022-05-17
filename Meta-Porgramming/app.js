@@ -17,11 +17,19 @@ function Logger(logString) {
     };
 }
 function withTemplate(template, hookId) {
-    return function (_) {
-        const hookEl = document.getElementById(hookId);
-        if (hookEl) {
-            hookEl.innerHTML = template;
-        }
+    return function (originalConstructor) {
+        // 返回的新的 class 会覆盖 Person
+        return class extends originalConstructor {
+            constructor(..._) {
+                super();
+                console.log("Rendering template");
+                const hookEl = document.getElementById(hookId);
+                if (hookEl) {
+                    hookEl.innerHTML = template;
+                    hookEl.querySelector("h1").innerText = this.name;
+                }
+            }
+        };
     };
 }
 // @Logger("LOGGING - PERSON")
@@ -93,3 +101,32 @@ __decorate([
     Log3,
     __param(0, Log4)
 ], Product.prototype, "getPriceWithTax", null);
+function AutoBind(_, _2, descriptor) {
+    console.log("AutoBind decorator");
+    // console.log(descriptor);
+    const originalMethod = descriptor.value;
+    const adjDescriptor = {
+        configurable: true,
+        enumerable: false,
+        get() {
+            console.log("///", this);
+            return originalMethod.bind(this);
+        },
+    };
+    return adjDescriptor;
+}
+class Printer {
+    constructor() {
+        this.message = "This works";
+    }
+    showMessage() {
+        console.log(this.message);
+    }
+}
+__decorate([
+    AutoBind
+], Printer.prototype, "showMessage", null);
+console.dir(Printer);
+const p = new Printer();
+const btn = document.querySelector("button");
+btn === null || btn === void 0 ? void 0 : btn.addEventListener("click", p.showMessage);
