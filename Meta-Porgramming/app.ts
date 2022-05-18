@@ -22,8 +22,7 @@ function positiveNumber(target: any, propName: string) {
 
 function validate(obj: any) {
   // console.log(registerValidators);
-  let flagA: boolean = false;
-  let flagB: boolean = false;
+  let flag: boolean = true;
   const objValidatorConfig = registerValidators[obj.constructor.name];
   if (!objValidatorConfig) {
     return true;
@@ -33,15 +32,15 @@ function validate(obj: any) {
       console.log(validator);
       switch (validator) {
         case "required":
-          flagA = !!obj[prop];
+          flag = flag && !!obj[prop];
           break;
         case "positive":
-          flagB = obj[prop] > 0;
+          flag = flag && obj[prop] > 0;
           break;
       }
     }
   }
-  return flagA && flagB;
+  return flag;
 }
 
 class Course {
