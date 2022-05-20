@@ -1,0 +1,41 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.form-control {
+  width: 600px;
+  height: auto;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.form-control label {
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.form-control > *:not(label) {
+  width: 100%;
+  outline: none;
+  padding: 5px;
+}
+
+button {
+  outline: none;
+  border: none;
+  background-color: #ff0062;
+  padding: 10px 5px;
+  color: #fff;
+}
+
+#user-input {
+  margin: 16px;
+  padding: 16px;
+  border: 1px solid #ff0062;
+  background: #f7f7f7;
+}
