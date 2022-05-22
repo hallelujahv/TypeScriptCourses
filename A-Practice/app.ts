@@ -1,8 +1,17 @@
-function AutoBind(
-  _: any,
-  _2: string,
-  propertyDescriptor: PropertyDescriptor
-) {
+interface Validation {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+function Validate(validateInput: Validation) {
+  return function (target: any) {};
+}
+
+function AutoBind(_: any, _2: string, propertyDescriptor: PropertyDescriptor) {
   const originalMethod = propertyDescriptor.value;
   const adjDescriptor: PropertyDescriptor = {
     configurable: true,
@@ -11,8 +20,8 @@ function AutoBind(
       // this 指向 prototype
       const fn = originalMethod.bind(this);
       return fn;
-    }
-  }
+    },
+  };
   return adjDescriptor;
 }
 
@@ -50,10 +59,37 @@ class ProjectInput {
     this.attach();
   }
 
+  private gatherUserInput(): [string, string, number] | void {
+    const enteredTitle = this.titleInputElement.value;
+    const enteredDescription = this.descriptionInputElement.value;
+    const enteredPeople = this.peopleInputElement.value;
+    if (
+      enteredTitle.trim().length === 0 ||
+      enteredDescription.trim().length === 0 ||
+      enteredPeople.trim().length === 0
+    ) {
+      alert("Invalid input, please try again");
+      return;
+    } else {
+      return [enteredTitle, enteredDescription, +enteredPeople];
+    }
+  }
+
+  private clearInput() {
+    this.titleInputElement.value = "";
+    this.descriptionInputElement.value = "";
+    this.peopleInputElement.value = "";
+  }
+
   @AutoBind
   private submitHandler(e: Event) {
     e.preventDefault();
-    console.log(this.titleInputElement.value);
+    const userInput = this.gatherUserInput();
+    if (Array.isArray(userInput)) {
+      const [title, desc, people] = userInput;
+      // console.log(title, desc, people);
+      this.clearInput();
+    }
   }
 
   private configure() {
@@ -66,4 +102,4 @@ class ProjectInput {
 }
 
 const prjInput = new ProjectInput();
-console.dir(prjInput);
+// console.dir(prjInput);
