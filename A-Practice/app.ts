@@ -7,8 +7,26 @@ interface Validation {
   max?: number;
 }
 
-function Validate(validateInput: Validation) {
-  return function (target: any) {};
+function validate(validateInput: Validation) {
+  let isValid = true;
+  if (validateInput.required) {
+    isValid = isValid && validateInput.value.toString().trim().length !== 0;
+  }
+  if (validateInput.minLength !== undefined && typeof validateInput.value === "string") {
+    isValid =
+      isValid && validateInput.value.trim().length > validateInput.minLength;
+  }
+  if (validateInput.maxLength !== undefined && typeof validateInput.value === "string") {
+    isValid =
+      isValid && validateInput.value.trim().length < validateInput.maxLength;
+  }
+  if (validateInput.min !== undefined && typeof validateInput.value === "number") {
+    isValid = isValid && validateInput.value > validateInput.min;
+  }
+  if (validateInput.max !== undefined && typeof validateInput.value === "number") {
+    isValid = isValid && validateInput.value < validateInput.max;
+  }
+  return isValid;
 }
 
 function AutoBind(_: any, _2: string, propertyDescriptor: PropertyDescriptor) {
@@ -63,10 +81,28 @@ class ProjectInput {
     const enteredTitle = this.titleInputElement.value;
     const enteredDescription = this.descriptionInputElement.value;
     const enteredPeople = this.peopleInputElement.value;
+
+    const titleValidation: Validation = {
+      value: enteredTitle,
+      required: true,
+    };
+
+    const descValidation: Validation = {
+      value: enteredDescription,
+      required: true,
+    };
+
+    const peopleValidation: Validation = {
+      value: +enteredPeople,
+      required: true,
+      min: 1,
+      max: 5,
+    };
+
     if (
-      enteredTitle.trim().length === 0 ||
-      enteredDescription.trim().length === 0 ||
-      enteredPeople.trim().length === 0
+      !validate(titleValidation) ||
+      !validate(descValidation) ||
+      !validate(peopleValidation)
     ) {
       alert("Invalid input, please try again");
       return;
