@@ -1,3 +1,41 @@
+// Project Statement Management
+// 确保全局只能由一个 projects
+class ProjectState {
+  private listeners: any[] = [];
+  private projects: any[] = [];
+  private static instance: ProjectState;
+
+  private constructor() {}
+
+  static getInstance() {
+    // 判断之前是否调用过该方法
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new ProjectState();
+    return this.instance;
+  }
+
+  addListener(listenFn: Function) {
+    this.listeners.push(listenFn);
+  }
+
+  addProject(title: string, description: string, people: number) {
+    const newProject = {
+      id: Math.random().toString(),
+      title,
+      description,
+      people,
+    };
+    this.projects.push(newProject);
+    for (const listenFn of this.listeners) {
+      listenFn(Array.from(this.projects));
+    }
+  }
+}
+
+const projectState = ProjectState.getInstance();
+
 interface Validation {
   value: string | number;
   required?: boolean;
@@ -12,18 +50,30 @@ function validate(validateInput: Validation) {
   if (validateInput.required) {
     isValid = isValid && validateInput.value.toString().trim().length !== 0;
   }
-  if (validateInput.minLength !== undefined && typeof validateInput.value === "string") {
+  if (
+    validateInput.minLength !== undefined &&
+    typeof validateInput.value === "string"
+  ) {
     isValid =
       isValid && validateInput.value.trim().length > validateInput.minLength;
   }
-  if (validateInput.maxLength !== undefined && typeof validateInput.value === "string") {
+  if (
+    validateInput.maxLength !== undefined &&
+    typeof validateInput.value === "string"
+  ) {
     isValid =
       isValid && validateInput.value.trim().length < validateInput.maxLength;
   }
-  if (validateInput.min !== undefined && typeof validateInput.value === "number") {
+  if (
+    validateInput.min !== undefined &&
+    typeof validateInput.value === "number"
+  ) {
     isValid = isValid && validateInput.value > validateInput.min;
   }
-  if (validateInput.max !== undefined && typeof validateInput.value === "number") {
+  if (
+    validateInput.max !== undefined &&
+    typeof validateInput.value === "number"
+  ) {
     isValid = isValid && validateInput.value < validateInput.max;
   }
   return isValid;
@@ -43,6 +93,63 @@ function AutoBind(_: any, _2: string, propertyDescriptor: PropertyDescriptor) {
   return adjDescriptor;
 }
 
+// ProjectList Class
+class ProjectList {
+  // 模板元素
+  templateElement: HTMLTemplateElement;
+  // 被挂载的元素 (#app)
+  hostElement: HTMLDivElement;
+  // template 中的元素
+  element: HTMLElement;
+  assignedProjects: any[] = [];
+
+  // type 这里当两个变量使用（😺 学到了）
+  constructor(private type: "active" | "finished") {
+    this.templateElement = <HTMLTemplateElement>(
+      document.getElementById("project-list")
+    );
+    this.hostElement = <HTMLDivElement>document.getElementById("app");
+
+    const importedNode = document.importNode(
+      this.templateElement.content,
+      true
+    );
+    this.element = importedNode.firstElementChild as HTMLElement;
+    this.element.id = `${this.type}-projects`;
+
+    projectState.addListener((projects: any[]) => {
+      this.assignedProjects = projects;
+      this.renderProjects();
+    });
+
+    this.attach();
+    this.renderContent();
+  }
+
+  private renderProjects() {
+    const listEl = <HTMLUListElement>(
+      document.getElementById(`${this.type}-projects-list`)
+    );
+    for (const prjItem of this.assignedProjects) {
+      let liEl = document.createElement("li");
+      liEl.innerText = prjItem.title;
+      listEl.appendChild(liEl);
+    }
+  }
+
+  private renderContent() {
+    const listId = `${this.type}-projects-list`;
+    this.element.querySelector("ul")!.id = listId;
+    this.element.querySelector("h2")!.innerText =
+      this.type.toUpperCase() + " PROJECT";
+  }
+
+  private attach() {
+    this.hostElement.insertAdjacentElement("beforeend", this.element);
+  }
+}
+
+// Project Class
 class ProjectInput {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
@@ -123,7 +230,8 @@ class ProjectInput {
     const userInput = this.gatherUserInput();
     if (Array.isArray(userInput)) {
       const [title, desc, people] = userInput;
-      // console.log(title, desc, people);
+      console.log(title, desc, people);
+      projectState.addProject(title, desc, people);
       this.clearInput();
     }
   }
@@ -139,3 +247,5 @@ class ProjectInput {
 
 const prjInput = new ProjectInput();
 // console.dir(prjInput);
+const activeProject = new ProjectList("active");
+const finishedProject = new ProjectList("finished");
